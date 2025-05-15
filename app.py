@@ -21,7 +21,8 @@
 
 # Create an instance of the Flask app
 from flask import Flask, render_template, request # render_template loads HTML from /templates
-import datetime, requests
+import datetime
+import requests
 
 
 app = Flask(__name__)
@@ -83,6 +84,13 @@ def catfact():
 def dog():
     image_url = None #This will be the dog image
     error = None #Holds an error message if something goes wrong
+    breed = ""
+    breeds = []
+    breed_list_response = requests.get("https://dog.ceo/api/breeds/list/all")
+    if breed_list_response.status_code == 200:
+        data = breed_list_response.json()
+        breeds = list(data["message"].keys())
+        breeds.sort()
 
     if request.method== "POST":
         breed = request.form.get("breed").lower()
@@ -95,7 +103,7 @@ def dog():
         else:
             error = f"Could not find breed \"{breed}\". Try another!"
 
-    return render_template("dog.html", image_url=image_url, error=error, breed=breed)
+    return render_template("dog.html", breeds=breeds, image_url=image_url, error=error, breed=breed)
 
 if __name__ == "__main__":
     # debug = True enables automatic reload on changes and better error messages
